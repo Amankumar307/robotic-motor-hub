@@ -1,0 +1,25 @@
+# Build directories
+build/
+bin/
+obj/
+*.o
+*.ko
+*.mod.c
+*.mod
+*.order
+*.symvers
+.tmp_versions/
+modules.order
+Module.symvers
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# IDE and Editor
+.vscode/
+.history/
+.idea/
+*.swp
+*~
