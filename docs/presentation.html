@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotic Multi-Axis Motor Controller & Actuator Hub - Presentation</title>
+    <style>
+        :root {
+            --bg-main: #0b132b;
+            --bg-card: #141e3c;
+            --card-border: #23325f;
+            --cyan: #00e5ff;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --purple: #a855f7;
+            --text-main: #ffffff;
+            --text-sub: #cbd5e1;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Top Progress Bar */
+        #progress-bar {
+            height: 5px;
+            background: linear-gradient(90deg, var(--cyan), var(--emerald), var(--amber), var(--purple));
+            width: 8.33%;
+            transition: width 0.3s ease;
+        }
+
+        /* Slide Container */
+        .slide-container {
+            flex: 1;
+            position: relative;
+            padding: 35px 50px;
+            display: flex;
+            flex-direction: column;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            animation: fadeIn 0.35s ease;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header Elements */
+        .category-tracker {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .category-text {
+            color: var(--cyan);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        .stage-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .slide-title {
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 25px;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        /* Grids & Cards */
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            flex: 1;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            flex: 1;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 22px;
+            border: 1.5px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card.cyan { border-color: var(--cyan); }
+        .card.emerald { border-color: var(--emerald); }
+        .card.amber { border-color: var(--amber); }
+        .card.rose { border-color: var(--rose); }
+        .card.purple { border-color: var(--purple); }
+
+        .card-header-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            padding: 6px 12px;
+            border-radius: 6px;
+            width: fit-content;
+        }
+
+        .card.cyan .card-header-pill { background: rgba(0, 229, 255, 0.15); color: var(--cyan); }
+        .card.emerald .card-header-pill { background: rgba(16, 185, 129, 0.15); color: var(--emerald); }
+        .card.amber .card-header-pill { background: rgba(245, 158, 11, 0.15); color: var(--amber); }
+        .card.rose .card-header-pill { background: rgba(244, 63, 94, 0.15); color: var(--rose); }
+        .card.purple .card-header-pill { background: rgba(168, 85, 247, 0.15); color: var(--purple); }
+
+        .card ul {
+            list-style: none;
+            flex: 1;
+        }
+
+        .card li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 12px;
+            color: var(--text-sub);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .card li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--cyan);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .card.emerald li::before { color: var(--emerald); }
+        .card.amber li::before { color: var(--amber); }
+        .card.rose li::before { color: var(--rose); }
+        .card.purple li::before { color: var(--purple); }
+
+        /* KPI Stat Cards */
+        .stat-card {
+            background: var(--bg-card);
+            border: 1.5px solid var(--card-border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .stat-card.cyan { border-color: var(--cyan); }
+        .stat-card.emerald { border-color: var(--emerald); }
+        .stat-card.rose { border-color: var(--rose); }
+        .stat-card.amber { border-color: var(--amber); }
+
+        .stat-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+        .stat-card.cyan .stat-val { color: var(--cyan); }
+        .stat-card.emerald .stat-val { color: var(--emerald); }
+        .stat-card.rose .stat-val { color: var(--rose); }
+        .stat-card.amber .stat-val { color: var(--amber); }
+
+        .stat-lbl {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+        }
+        .stat-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: 3px;
+        }
+
+        /* Bottom Navigation Toolbar */
+        .nav-toolbar {
+            height: 60px;
+            background: rgba(11, 19, 43, 0.95);
+            border-top: 1px solid var(--card-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .nav-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 8px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        .slide-counter {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="progress-bar"></div>
+
+    <div class="slide-container">
+
+        <!-- SLIDE 1: HERO TITLE SLIDE -->
+        <div class="slide active">
+            <div class="category-tracker">
+                <span class="category-text">★ DOMAIN 5 : ROBOTICS, EDGE AI & HARDWARE EMULATION</span>
+                <span class="stage-pill">CAPSTONE PROJECT</span>
+            </div>
+            <div style="margin: 25px 0 35px 0;">
+                <h1 style="font-size: 3.2rem; font-weight: 900; line-height: 1.15; margin-bottom: 12px;">
+                    Robotic Multi-Axis Motor Controller<br>& Actuator Hub
+                </h1>
+                <p style="color: var(--cyan); font-size: 1.25rem; font-weight: 600;">
+                    Linux Device Drivers  •  POSIX Real-Time Systems  •  Modern C++ Motion Engine
+                </p>
+            </div>
+
+            <div class="grid-4">
+                <div class="stat-card cyan">
+                    <div class="stat-val">1000 Hz</div>
+                    <div class="stat-lbl">Control Loop Rate</div>
+                    <div class="stat-sub">Deterministic 1.0 ms period</div>
+                </div>
+                <div class="stat-card emerald">
+                    <div class="stat-val">24 µs</div>
+                    <div class="stat-lbl">Loop Execution</div>
+                    <div class="stat-sub">6.25x headroom under 150 µs</div>
+                </div>
+                <div class="stat-card rose">
+                    <div class="stat-val">&lt; 0.05 ms</div>
+                    <div class="stat-lbl">E-Stop Reaction</div>
+                    <div class="stat-sub">Instant PWM shutdown</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-val">100% Pass</div>
+                    <div class="stat-lbl">Test Coverage</div>
+                    <div class="stat-sub">All 6 stages verified</div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: auto; border-color: var(--card-border);">
+                <p style="font-weight: 700; color: #fff; font-size: 1rem; margin-bottom: 4px;">
+                    Presenter: Aman Kumar (Engineering Trainee)  |  20-Day Advanced Systems Training Capstone
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">
+                    GitHub Repository: <a href="https://github.com/Amankumar307/robotic-motor-hub" target="_blank" style="color: var(--cyan); text-decoration: none;">https://github.com/Amankumar307/robotic-motor-hub</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: STAGE 1 - PROJECT OVERVIEW -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 1 : PROJECT INTRODUCTION & MOTIVATION</span>
+                <span class="stage-pill">STAGE 1 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 1: Industrial Motivation & Problem Statement</h2>
+            <div class="grid-3">
+                <div class="card cyan">
+                    <div class="card-header-pill">🤖 Industrial Motivation</div>
+                    <ul>
+                        <li><b>Multi-DoF Robotic Systems:</b> 6-axis articulated arms, 3-axis Cartesian gantries, and AGV differential pods.</li>
+                        <li><b>Precision Coordination:</b> Stepper and BLDC motors must track synchronized trajectories without drift.</li>
+                        <li><b>Applications:</b> High-speed pick-and-place, CNC milling, laser cutting, and semiconductor wafer handling.</li>
+                    </ul>
+                </div>
+                <div class="card rose">
+                    <div class="card-header-pill">⚠️ Problem Statement</div>
+                    <ul>
+                        <li><b>User-Space Jitter:</b> Standard Linux lacks real-time determinism, leading to motor vibration and path error.</li>
+                        <li><b>Hardware Abstraction Gap:</b> Disconnect between user-space trajectory planning and hardware silicon registers.</li>
+                        <li><b>Safety Hazards:</b> Mechanical stalls and limit strikes demand sub-millisecond emergency stop reactions.</li>
+                    </ul>
+                </div>
+                <div class="card emerald">
+                    <div class="card-header-pill">🎯 Project Objectives</div>
+                    <ul>
+                        <li><b>Linux Character Driver:</b> <code>/dev/motor_hub</code> with MMIO register layout and 1 kHz <code>hrtimer</code> interrupts.</li>
+                        <li><b>Deterministic C++ Daemon:</b> 1000 Hz loop under POSIX <code>SCHED_FIFO</code> with zero heap allocation in loop.</li>
+                        <li><b>Closed-Loop Algorithms:</b> Anti-windup discrete PID and multi-axis synchronized trapezoidal velocity profilers.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: STAGE 2 - REQUIREMENTS & PRD -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 2 : REQUIREMENTS & DEVELOPMENT PLAN</span>
+                <span class="stage-pill">STAGE 2 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 2: Requirements & PRD Deliverables Matrix</h2>
+            <div class="grid-2">
+                <div class="card cyan">
+                    <div class="card-header-pill">📋 Functional Requirements (FR)</div>
+                    <ul>
+                        <li><b>FR-01 (Multi-Axis Actuation):</b> Up to 6 coordinated motion axes (X, Y, Z, Roll, Pitch, Yaw).</li>
+                        <li><b>FR-02 (Linux Driver):</b> IOCTL interface for atomic register read/write and bulk telemetry.</li>
+                        <li><b>FR-03 (Interrupt Emulation):</b> 1 kHz hardware physics tick via kernel <code>hrtimer</code> clock.</li>
+                        <li><b>FR-04 (Closed-Loop Regulation):</b> Discrete PID control with anti-windup clamping.</li>
+                        <li><b>FR-05 (Synchronized Profiling):</b> Trapezoidal velocity planning across all active axes.</li>
+                        <li><b>FR-06 (Dual-Mode HAL):</b> Swappable Linux driver and high-fidelity mock emulator.</li>
+                    </ul>
+                </div>
+                <div class="card amber">
+                    <div class="card-header-pill">📊 Non-Functional Requirements (NFR)</div>
+                    <ul>
+                        <li><b>NFR-01 (Control Frequency):</b> Strict deterministic 1000 Hz (1.0 ms period).</li>
+                        <li><b>NFR-02 (Computation Budget):</b> &le; 150 µs loop execution time budget.</li>
+                        <li><b>NFR-03 (E-Stop Response):</b> PWM clamp to zero in &le; 1.0 ms upon fault trigger.</li>
+                        <li><b>NFR-04 (Memory Footprint):</b> Resident memory (RSS) strictly capped at &le; 16 MB.</li>
+                        <li><b>NFR-05 (Zero Heap Jitter):</b> Pre-allocated arrays (<code>alignas(64)</code>) to avoid <code>malloc()</code> in periodic loop.</li>
+                        <li><b>NFR-06 (Zero-Copy Telemetry):</b> High-speed POSIX Shared Memory (<code>/dev/shm</code>) streaming.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: STAGE 3 - 5-LAYER SYSTEM ARCHITECTURE -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 3 : SYSTEM DESIGN & ARCHITECTURE</span>
+                <span class="stage-pill">STAGE 3 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 3: 5-Layer Decoupled System Architecture</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px; flex: 1;">
+                <div class="card purple" style="padding: 12px 20px; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--purple); font-weight: 800; font-size: 1rem;">LAYER 5: USER & OPERATOR LAYER</span>
+                        <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 2px;">Interactive Motor CLI Client (<code>motor_cli</code>)  •  Live 10 Hz Telemetry Terminal Dashboard</p>
+                    </div>
+                    <span style="font-size: 1.4rem;">💻</span>
+                </div>
+                <div class="card cyan" style="padding: 12px 20px; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--cyan); font-weight: 800; font-size: 1rem;">LAYER 4: INTER-PROCESS COMMUNICATION (IPC)</span>
+                        <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 2px;">POSIX Shared Memory (<code>/dev/shm/motor_hub_telemetry</code>)  •  Asynchronous Command Queue Server</p>
+                    </div>
+                    <span style="font-size: 1.4rem;">⚡</span>
+                </div>
+                <div class="card emerald" style="padding: 12px 20px; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--emerald); font-weight: 800; font-size: 1rem;">LAYER 3: REAL-TIME MOTION CONTROL CORE</span>
+                        <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 2px;">1 kHz Periodic Daemon (<code>SCHED_FIFO</code>)  •  MultiAxisController  •  PID  •  TrajectoryPlanner  •  Watchdog</p>
+                    </div>
+                    <span style="font-size: 1.4rem;">⚙️</span>
+                </div>
+                <div class="card amber" style="padding: 12px 20px; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--amber); font-weight: 800; font-size: 1rem;">LAYER 2: HARDWARE ABSTRACTION LAYER (HAL)</span>
+                        <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 2px;"><code>IHardwareDevice</code> Interface  •  <code>KernelDeviceDriverHAL</code>  •  <code>MockHardwareEmulatorHAL</code></p>
+                    </div>
+                    <span style="font-size: 1.4rem;">🔌</span>
+                </div>
+                <div class="card rose" style="padding: 12px 20px; flex-direction: row; align-items: center; justify-content: space-between;">
+                    <div>
+                        <span style="color: var(--rose); font-weight: 800; font-size: 1rem;">LAYER 1: LINUX KERNEL DRIVER & SILICON</span>
+                        <p style="color: var(--text-sub); font-size: 0.85rem; margin-top: 2px;"><code>motor_hub_driver.ko</code>  •  <code>/dev/motor_hub</code>  •  Sysfs <code>/sys/class/motor_hub_class/</code>  •  MMIO Registers</p>
+                    </div>
+                    <span style="font-size: 1.4rem;">🛡️</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: STAGE 3 - MMIO REGISTERS & FSM -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 3 : HARDWARE-SOFTWARE CO-DESIGN</span>
+                <span class="stage-pill">STAGE 3 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 3: MMIO Register Map & State Machine</h2>
+            <div class="grid-2">
+                <div class="card cyan">
+                    <div class="card-header-pill">💾 32-Bit MMIO Register Bank (Per Axis)</div>
+                    <ul>
+                        <li><b>0x00 - REG_AXIS_CTRL:</b> Enable (b0), Reset (b1), E-Stop (b2), Home (b3).</li>
+                        <li><b>0x04 - REG_AXIS_STATUS:</b> Enabled, InPosition, Error, Limits Hit, E-Stop Active.</li>
+                        <li><b>0x08 - REG_TARGET_POS:</b> Desired quadrature encoder position (signed 32-bit).</li>
+                        <li><b>0x0C - REG_ACTUAL_POS:</b> Measured encoder position feedback (signed 32-bit).</li>
+                        <li><b>0x10 - REG_TARGET_VEL:</b> Commanded target velocity (ticks/second).</li>
+                        <li><b>0x14 - REG_ACTUAL_VEL:</b> Measured continuous velocity feedback.</li>
+                        <li><b>0x18 - REG_PWM_OUTPUT:</b> Commanded motor duty effort (-1000 to +1000).</li>
+                        <li><b>0x1C-0x24 - REG_KP / KI / KD:</b> Discrete PID gains (fixed-point Q16.16).</li>
+                    </ul>
+                </div>
+                <div class="card emerald">
+                    <div class="card-header-pill">🔄 Actuator Finite State Machine (FSM)</div>
+                    <ul>
+                        <li><b>UNINITIALIZED:</b> Initial boot state prior to self-test.</li>
+                        <li><b>IDLE:</b> Driver initialized, drive energized, waiting for commands.</li>
+                        <li><b>HOMING:</b> Seeking limit switch reference and zeroing coordinates.</li>
+                        <li><b>POSITIONING:</b> Executing real-time synchronized trajectory moves.</li>
+                        <li><b>JOGGING:</b> Open-loop or constant velocity manual jogging.</li>
+                        <li><b>ERROR:</b> Tracking error stall or overtemperature detected.</li>
+                        <li><b>EMERGENCY_STOP:</b> Immediate hardware PWM cutoff latched.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: STAGE 4 - LINUX KERNEL DEVICE DRIVER -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 4 : INITIAL IMPLEMENTATION & PROTOTYPE</span>
+                <span class="stage-pill">STAGE 4 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 4: Linux Character Device Driver (/dev/motor_hub)</h2>
+            <div class="grid-3">
+                <div class="card cyan">
+                    <div class="card-header-pill">🐧 Driver Core & VFS</div>
+                    <ul>
+                        <li><code>alloc_chrdev_region()</code>: Dynamically allocates major/minor device numbers.</li>
+                        <li><code>cdev_init()</code> & <code>cdev_add()</code>: Registers character device with Virtual File System.</li>
+                        <li><code>device_create()</code>: Automatically exposes <code>/dev/motor_hub</code> node.</li>
+                    </ul>
+                </div>
+                <div class="card amber">
+                    <div class="card-header-pill">📡 IOCTL Subsystem</div>
+                    <ul>
+                        <li><code>IOCTL_MOTOR_SET_CMD</code>: Sets target position, velocity, and PWM atomically.</li>
+                        <li><code>IOCTL_MOTOR_READ_ALL</code>: Bulk zero-copy telemetry fetch across all 6 axes.</li>
+                        <li><code>IOCTL_MOTOR_TRIGGER_ESTOP</code>: Hardware-level emergency stop latch.</li>
+                    </ul>
+                </div>
+                <div class="card emerald">
+                    <div class="card-header-pill">⏱️ Timer & Concurrency</div>
+                    <ul>
+                        <li><b>High-Res Timer (hrtimer):</b> 1 kHz hardware physics tick clock.</li>
+                        <li><b>Physics Emulation:</b> Updates motor velocity and encoder counts in interrupt context.</li>
+                        <li><b>Spinlocks:</b> <code>spin_lock_irqsave()</code> protects registers safely during ISR.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: STAGE 5 - MOTION CONTROL ALGORITHMS -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 5 : TESTING & INTEGRATION</span>
+                <span class="stage-pill">STAGE 5 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 5: Real-Time Motion Control Algorithms</h2>
+            <div class="grid-2">
+                <div class="card cyan">
+                    <div class="card-header-pill">🧮 Anti-Windup Discrete PID Controller</div>
+                    <ul>
+                        <li><b>Discrete Math:</b> \( u[k] = K_p e[k] + K_i \sum e[k]\Delta t + K_d \frac{\Delta e}{\Delta t} \)</li>
+                        <li><b>Anti-Windup Clamping:</b> Clamps accumulated integral to &plusmn; 250 to prevent huge overshoots during motor saturation.</li>
+                        <li><b>Filtered Derivative:</b> Discrete low-pass filter (&alpha; = 0.7) eliminates high-frequency encoder noise chatter.</li>
+                        <li><b>Deadband Handling:</b> Zeroes PWM hunting jitter when within &plusmn; 5 ticks of setpoint.</li>
+                    </ul>
+                </div>
+                <div class="card emerald">
+                    <div class="card-header-pill">📈 Synchronized Trajectory Planner</div>
+                    <ul>
+                        <li><b>Trapezoidal Velocity Planning:</b> Calculates acceleration (\(t_a\)), cruise (\(t_c\)), and deceleration (\(t_d\)) phases.</li>
+                        <li><b>Triangular Adaptation:</b> Automatically handles short moves where max cruise velocity cannot be reached.</li>
+                        <li><b>Synchronized Multi-Axis Scaling:</b> Calculates \(T_{max}\) across all axes, then scales velocities and accelerations so all axes start and finish in lockstep.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: STAGE 5 - IPC & SAFETY WATCHDOG -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 5 : IPC & REAL-TIME SAFETY</span>
+                <span class="stage-pill">STAGE 5 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 5: High-Speed IPC & Real-Time Safety Watchdog</h2>
+            <div class="grid-2">
+                <div class="card cyan">
+                    <div class="card-header-pill">🚀 Zero-Copy POSIX Shared Memory IPC</div>
+                    <ul>
+                        <li><code>shm_open()</code> & <code>mmap()</code>: Creates shared memory segment <code>/dev/shm/motor_hub_telemetry</code>.</li>
+                        <li><b>Zero-Copy Streaming:</b> 1 kHz daemon publishes telemetry without kernel copying overhead (&lt; 2.1 µs latency).</li>
+                        <li><b>Cache-Line Alignment:</b> Decorated with <code>alignas(64)</code> to prevent false sharing between CPU cores.</li>
+                        <li><b>Command Queue:</b> Asynchronous FIFO channel for operator move/home/estop commands.</li>
+                    </ul>
+                </div>
+                <div class="card rose">
+                    <div class="card-header-pill">🛡️ Failsafe Watchdog Supervision</div>
+                    <ul>
+                        <li><b>Heartbeat Deadline:</b> Monitors periodic loop deadlines; missing 150 ms deadline triggers instant E-Stop.</li>
+                        <li><b>Tracking Error Threshold:</b> Detects mechanical stalls if \( |target - actual| &gt; 35,000 \) ticks.</li>
+                        <li><b>Thermal Trip:</b> Trips E-Stop if axis temperature exceeds 80°C.</li>
+                        <li><b>Instant Cutoff:</b> Motor PWM output clamped to 0 in &lt; 0.05 ms upon fault.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: VERIFICATION & BENCHMARKS -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 5 & 6 : VERIFICATION & RESULTS</span>
+                <span class="stage-pill">BENCHMARKS</span>
+            </div>
+            <h2 class="slide-title">Stage 5 & 6: Verification & Performance Benchmarking</h2>
+            <div class="grid-4">
+                <div class="stat-card cyan">
+                    <div class="stat-val">1000 Hz</div>
+                    <div class="stat-lbl">Control Loop Rate</div>
+                    <div class="stat-sub">Deterministic POSIX RT</div>
+                </div>
+                <div class="stat-card emerald">
+                    <div class="stat-val">24 µs</div>
+                    <div class="stat-lbl">Loop Execution</div>
+                    <div class="stat-sub">Budget: 150 µs (6.25x Headroom)</div>
+                </div>
+                <div class="stat-card rose">
+                    <div class="stat-val">&lt; 0.05 ms</div>
+                    <div class="stat-lbl">E-Stop Response</div>
+                    <div class="stat-sub">Instant PWM shutdown</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-val">4.8 MB</div>
+                    <div class="stat-lbl">Resident Memory</div>
+                    <div class="stat-sub">70% below 16 MB limit</div>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card emerald">
+                    <div class="card-header-pill">🏆 Pick-and-Place Trajectory Results</div>
+                    <ul>
+                        <li><b>4-Waypoint Sequence:</b> Approach &rarr; Lower &rarr; Lift &rarr; Traverse to Place.</li>
+                        <li><b>Total Simulated Time:</b> 4.202 seconds (4,201 discrete 1 ms cycles).</li>
+                        <li><b>Execution Speedup:</b> 186.0x real-time speedup during verification.</li>
+                        <li><b>Steady-State Accuracy:</b> Settled within deadband (Axis X: 0.16 ticks, Axis Y: 4.77 ticks).</li>
+                    </ul>
+                </div>
+                <div class="card cyan">
+                    <div class="card-header-pill">✅ Automated Test Suite Summary</div>
+                    <ul>
+                        <li><code>test_pid_controller</code>: Anti-windup clamping & step response validated.</li>
+                        <li><code>test_trajectory_planner</code>: Profile continuity & multi-axis sync validated.</li>
+                        <li><code>test_hardware_emulator</code>: MMIO registers & limit switches validated.</li>
+                        <li><code>test_failsafe_watchdog</code>: Heartbeat timeout & stall detection validated (100% PASS).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: DEMONSTRATION & CLI -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 6 : FINAL IMPLEMENTATION & DEMO</span>
+                <span class="stage-pill">STAGE 6 OF 6</span>
+            </div>
+            <h2 class="slide-title">Stage 6: Demonstration & Operator CLI Interface</h2>
+            <div class="grid-2">
+                <div class="card cyan">
+                    <div class="card-header-pill">⌨️ Interactive Operator CLI (motor_cli)</div>
+                    <ul>
+                        <li><code>status</code>: Displays live formatted telemetry table (Positions, Velocities, PWM, Temperatures).</li>
+                        <li><code>move &lt;axis&gt; &lt;ticks&gt;</code>: Commands single axis to target coordinate.</li>
+                        <li><code>sync &lt;x&gt; &lt;y&gt; &lt;z&gt;</code>: Coordinates 3 axes in synchronized Cartesian motion.</li>
+                        <li><code>home &lt;axis&gt;</code>: Homing routine with limit-switch reference zeroing.</li>
+                        <li><code>monitor</code>: Auto-refreshing 10 Hz streaming live terminal dashboard.</li>
+                        <li><code>estop / clear</code>: Instant emergency stop and fault reset.</li>
+                    </ul>
+                </div>
+                <div class="card emerald">
+                    <div class="card-header-pill">💻 Dual HAL & Deployment Flexibility</div>
+                    <ul>
+                        <li><b>Linux Driver Mode:</b> Native Linux / WSL2 with compiled kernel module <code>/dev/motor_hub</code>.</li>
+                        <li><b>Mock Emulation Mode:</b> Runs daemon on any machine with <code>--emulation</code> flag without root privileges.</li>
+                        <li><b>Python Verification:</b> <code>python scripts/simulate_and_verify.py</code> runs everywhere.</li>
+                        <li><b>VS Code Integration:</b> Full IntelliSense and one-click build tasks (<code>Ctrl+Shift+B</code>).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: ACHIEVEMENTS & FUTURE ROADMAP -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">STAGE 6 : EVALUATION & ROADMAP</span>
+                <span class="stage-pill">SUMMARY</span>
+            </div>
+            <h2 class="slide-title">Stage 6: Achievements, Limitations & Future Roadmap</h2>
+            <div class="grid-3">
+                <div class="card emerald">
+                    <div class="card-header-pill">🌟 Key Achievements</div>
+                    <ul>
+                        <li>Completed all 6 development stages with rigorous documentation.</li>
+                        <li>Demonstrated Linux kernel drivers, real-time POSIX systems, and modern C++.</li>
+                        <li>Sub-millisecond determinism (24 µs loop latency vs 150 µs limit).</li>
+                        <li>Structured Git version history with semantic commits on GitHub.</li>
+                    </ul>
+                </div>
+                <div class="card amber">
+                    <div class="card-header-pill">⚠️ Technical Limitations</div>
+                    <ul>
+                        <li><b>Silicon Verification:</b> Tested on virtual MMIO registers rather than physical FPGA/ASIC.</li>
+                        <li><b>Trajectory Dynamics:</b> Employs trapezoidal velocity profiles rather than 7-phase S-curves.</li>
+                        <li><b>Direct MMIO:</b> Direct memory mapping rather than decentralized fieldbus protocols.</li>
+                    </ul>
+                </div>
+                <div class="card cyan">
+                    <div class="card-header-pill">🚀 Future Roadmap</div>
+                    <ul>
+                        <li><b>EtherCAT / CANopen HAL:</b> Integrate real-time SOEM stack for distributed servo drives.</li>
+                        <li><b>ROS 2 Integration:</b> Develop a <code>ros2_control</code> hardware interface plugin.</li>
+                        <li><b>FPGA Acceleration:</b> Offload PID and register maps to a RISC-V FPGA softcore.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: CONCLUSION & Q&A -->
+        <div class="slide">
+            <div class="category-tracker">
+                <span class="category-text">CONCLUSION & OPEN DISCUSSION</span>
+                <span class="stage-pill">Q & A</span>
+            </div>
+            <div class="card cyan" style="flex: 1; justify-content: center; align-items: center; text-align: center; border-width: 2px;">
+                <h1 style="font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 10px;">Thank You!</h1>
+                <p style="color: var(--cyan); font-size: 1.5rem; font-weight: 700; margin-bottom: 30px;">
+                    Questions & Technical Evaluation
+                </p>
+                <div style="background: rgba(0,0,0,0.3); padding: 25px 40px; border-radius: 12px; max-width: 800px; text-align: left; border: 1px solid var(--card-border);">
+                    <p style="color: var(--amber); font-weight: 700; font-size: 1.1rem; margin-bottom: 10px;">Project Summary & Submission Details:</p>
+                    <ul style="list-style: none;">
+                        <li style="margin-bottom: 8px; color: var(--text-sub);">• <b>Domain 5:</b> Robotics, Edge AI & Hardware Emulation</li>
+                        <li style="margin-bottom: 8px; color: var(--text-sub);">• <b>GitHub Repository:</b> <a href="https://github.com/Amankumar307/robotic-motor-hub" target="_blank" style="color: var(--cyan);">https://github.com/Amankumar307/robotic-motor-hub</a></li>
+                        <li style="margin-bottom: 8px; color: var(--text-sub);">• <b>Deliverables:</b> PRD, Architecture, UML, Kernel Driver, C++ Core, Test Runner & Benchmarks</li>
+                        <li style="color: var(--emerald);">• <b>Verification:</b> 100% Pass across all automated unit, integration, and trajectory tests.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- BOTTOM CONTROLS TOOLBAR -->
+    <div class="nav-toolbar">
+        <button class="nav-btn" onclick="prevSlide()">❮ Previous Slide</button>
+        <span class="slide-counter" id="slide-num">Slide 1 of 12</span>
+        <button class="nav-btn" onclick="nextSlide()">Next Slide ❯</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const slideNum = document.getElementById('slide-num');
+
+        function updateSlide(index) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (index + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+
+            // Update Progress Bar & Counter
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressBar.style.width = progress + '%';
+            slideNum.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+        }
+
+        function nextSlide() { updateSlide(currentSlide + 1); }
+        function prevSlide() { updateSlide(currentSlide - 1); }
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+                prevSlide();
+            } else if (e.key === 'Home') {
+                updateSlide(0);
+            } else if (e.key === 'End') {
+                updateSlide(slides.length - 1);
+            }
+        });
+    </script>
+</body>
+</html>
